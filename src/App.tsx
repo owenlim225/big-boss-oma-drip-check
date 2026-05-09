@@ -1,30 +1,30 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import {
   PLATFORM_ACCENTS,
   PLATFORM_LABELS,
   SAMPLE_OUTFITS,
 } from './constants'
+import { BboxOverlay } from './components/BboxOverlay'
 import { analyzeOutfit, getDemoAnalysis } from './geminiService'
 import type { OutfitAnalysis, PlatformId, SampleOutfit } from './types'
 
+const initialDemoAnalysis = getDemoAnalysis()
+const initialActiveTabs = Object.fromEntries(
+  initialDemoAnalysis.items.map((item) => [item.id, item.bestPlatform]),
+)
+
 function App() {
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const previewImageRef = useRef<HTMLImageElement>(null)
   const [previewUrl, setPreviewUrl] = useState<string>(SAMPLE_OUTFITS[0].dataUrl)
-  const [analysis, setAnalysis] = useState<OutfitAnalysis | null>(null)
+  const [analysis, setAnalysis] = useState<OutfitAnalysis | null>(initialDemoAnalysis)
   const [isDragging, setIsDragging] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [activeTabs, setActiveTabs] = useState<Record<string, PlatformId>>({})
+  const [activeTabs, setActiveTabs] =
+    useState<Record<string, PlatformId>>(initialActiveTabs)
   const [isDemo, setIsDemo] = useState(true)
-
-  useEffect(() => {
-    const demo = getDemoAnalysis()
-    setAnalysis(demo)
-    setActiveTabs(
-      Object.fromEntries(demo.items.map((item) => [item.id, item.bestPlatform])),
-    )
-  }, [])
 
   const totalItems = analysis?.items.length ?? 0
   const cheapestTotal = useMemo(
@@ -189,7 +189,14 @@ function App() {
                 handleFiles(event.dataTransfer.files)
               }}
             >
-              <img src={previewUrl} alt="Uploaded outfit preview" />
+              <img
+                ref={previewImageRef}
+                src={previewUrl}
+                alt="Uploaded outfit preview"
+              />
+              {!isLoading && analysis?.items.length ? (
+                <BboxOverlay imageRef={previewImageRef} items={analysis.items} />
+              ) : null}
               <span className="dropzone-cta">
                 {isDragging ? 'Bitawan mo na dito' : 'Drag-drop or tap to upload'}
               </span>

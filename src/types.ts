@@ -11,6 +11,7 @@ export type PlatformDeal = {
 export type ClothingItem = {
   id: string
   itemName: string
+  bbox: [number, number, number, number]
   category: string
   color: string
   style: string

@@ -1,4 +1,4 @@
-import type { PlatformId, SampleOutfit } from './types'
+import type { GeminiAnalysis, PlatformId, SampleOutfit } from './types'
 
 export const GEMINI_MODEL = 'gemini-2.5-flash'
 
@@ -10,10 +10,11 @@ Act like an autonomous shopping assistant, not a passive image captioner. Analyz
 Your job:
 1. Identify every visible clothing item and wearable accessory in the photo.
 2. For each item, infer category, color, style, and a practical material hint.
-3. Generate optimized Filipino shopping search queries for Shopee PH, Lazada PH, and Carousell/ukay-style resale.
-4. Estimate realistic budget prices in Philippine pesos for a working student, favoring affordable alternatives over premium brands.
-5. Compare the platforms per item and choose a Best Buy platform automatically.
-6. Keep copy concise, practical, hype, and Taglish.
+3. For each item, return bbox as [ymin, xmin, ymax, xmax] integers in 0-1000 normalized image coordinates.
+4. Generate optimized Filipino shopping search queries for Shopee PH, Lazada PH, and Carousell/ukay-style resale.
+5. Estimate realistic budget prices in Philippine pesos for a working student, favoring affordable alternatives over premium brands.
+6. Compare the platforms per item and choose a Best Buy platform automatically.
+7. Keep copy concise, practical, hype, and Taglish.
 
 Local rules:
 - Use Philippine fashion vocabulary when helpful: ukay, thrifted, pambahay, pang-campus, pang-date, oversized, coords, denim, linen, sneakers, sandals.
@@ -49,7 +50,7 @@ export const buildPlatformUrl = (platform: PlatformId, query: string) => {
   return `https://www.carousell.ph/search/${encoded}/`
 }
 
-export const fallbackAnalysis = {
+export const fallbackAnalysis: GeminiAnalysis = {
   vibe: 'Campus-ready tipid fit',
   summary:
     'Fallback demo mode: set VITE_GEMINI_API_KEY to let Gemini identify your real outfit.',
@@ -58,6 +59,7 @@ export const fallbackAnalysis = {
   items: [
     {
       itemName: 'Oversized graphic tee',
+      bbox: [160, 280, 540, 620],
       category: 'Top',
       color: 'Black / neutral',
       style: 'Streetwear',
@@ -88,6 +90,7 @@ export const fallbackAnalysis = {
     },
     {
       itemName: 'Straight-leg denim jeans',
+      bbox: [540, 320, 940, 580],
       category: 'Bottom',
       color: 'Light blue',
       style: 'Casual',

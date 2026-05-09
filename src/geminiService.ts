@@ -28,6 +28,12 @@ const responseSchema = {
         type: 'OBJECT',
         properties: {
           itemName: { type: 'STRING' },
+          bbox: {
+            type: 'ARRAY',
+            items: { type: 'INTEGER' },
+            minItems: 4,
+            maxItems: 4,
+          },
           category: { type: 'STRING' },
           color: { type: 'STRING' },
           style: { type: 'STRING' },
@@ -54,6 +60,7 @@ const responseSchema = {
         },
         required: [
           'itemName',
+          'bbox',
           'category',
           'color',
           'style',
@@ -107,8 +114,44 @@ const normalizeDeal = (deal: GeminiPlatformDeal): PlatformDeal => {
   }
 }
 
+const SENTINEL_BBOX: ClothingItem['bbox'] = [0, 0, 1000, 1000]
+
+const normalizeBbox = (
+  bbox: GeminiAnalysis['items'][number]['bbox'] | undefined,
+  item: GeminiAnalysis['items'][number],
+): ClothingItem['bbox'] | null => {
+  if (!Array.isArray(bbox)) {
+    return SENTINEL_BBOX
+  }
+
+  if (bbox.length !== 4) {
+    console.warn('Skipping clothing item with malformed bbox.', item)
+    return null
+  }
+
+  const normalized = bbox.map((coord) => {
+    const numericCoord = Number(coord)
+    const safeCoord = Number.isFinite(numericCoord) ? numericCoord : 0
+    return Math.round(Math.min(1000, Math.max(0, safeCoord)))
+  }) as ClothingItem['bbox']
+  const [ymin, xmin, ymax, xmax] = normalized
+
+  if (ymax <= ymin || xmax <= xmin) {
+    console.warn('Skipping clothing item with invalid bbox.', item)
+    return null
+  }
+
+  return normalized
+}
+
 const normalizeAnalysis = (analysis: GeminiAnalysis): OutfitAnalysis => {
-  const items: ClothingItem[] = analysis.items.map((item, index) => {
+  const items: ClothingItem[] = analysis.items.flatMap((item, index) => {
+    const bbox = normalizeBbox(item.bbox, item)
+
+    if (!bbox) {
+      return []
+    }
+
     const platforms = item.platforms.map(normalizeDeal)
     const bestDeal = [...platforms].sort(
       (a, b) => a.estimatedPricePhp - b.estimatedPricePhp,
@@ -117,6 +160,7 @@ const normalizeAnalysis = (analysis: GeminiAnalysis): OutfitAnalysis => {
     return {
       id: `${item.category}-${index}`,
       itemName: item.itemName,
+      bbox,
       category: item.category,
       color: item.color,
       style: item.style,

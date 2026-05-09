@@ -545,6 +545,154 @@ h3 {
   background: var(--lime);
 }
 
+.bbox-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.floating-card-group {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.floating-card {
+  position: absolute;
+  left: var(--card-left);
+  top: var(--card-top);
+  display: grid;
+  width: min(192px, calc(100% - 24px));
+  min-height: 76px;
+  gap: 5px;
+  border: var(--border-w) solid var(--ink);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--ink);
+  text-align: left;
+  box-shadow: var(--hard-shadow);
+  pointer-events: auto;
+  backdrop-filter: blur(14px);
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    background 140ms ease;
+}
+
+.floating-card:hover,
+.floating-card:focus-visible,
+.floating-card.is-expanded {
+  background: var(--paper);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--ink);
+}
+
+.floating-card:focus-visible {
+  box-shadow:
+    0 0 0 3px var(--bg),
+    0 0 0 6px var(--ink),
+    6px 6px 0 var(--ink);
+}
+
+.floating-card-name {
+  display: -webkit-box;
+  overflow: hidden;
+  font-family: "Bricolage Grotesque", "Inter", sans-serif;
+  font-size: 0.98rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.floating-card-price {
+  width: fit-content;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  padding: 2px 8px;
+  background: var(--lime);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.floating-card-expanded {
+  display: grid;
+  max-height: 0;
+  overflow: hidden;
+  gap: 7px;
+  opacity: 0;
+  transition:
+    max-height 160ms ease,
+    opacity 120ms ease;
+}
+
+.floating-card.is-expanded .floating-card-expanded {
+  max-height: 180px;
+  opacity: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .floating-card:hover .floating-card-expanded,
+  .floating-card:focus .floating-card-expanded,
+  .floating-card:focus-within .floating-card-expanded {
+    max-height: 180px;
+    opacity: 1;
+  }
+}
+
+.floating-card-meta {
+  display: block;
+  color: var(--ink-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.floating-platform-pill {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  padding: 3px 9px;
+  background: var(--platform-accent);
+  color: var(--ink);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.floating-card-expanded p {
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.floating-best-reason {
+  border-top: 1px dashed var(--ink-faint);
+  padding-top: 6px;
+}
+
+.floating-card-leader {
+  position: absolute;
+  left: var(--leader-left);
+  top: var(--leader-top);
+  z-index: 0;
+  width: var(--leader-width);
+  height: 1.5px;
+  background: rgba(10, 10, 10, 0.72);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55);
+  transform: rotate(var(--leader-angle));
+  transform-origin: 0 50%;
+}
+
 /* Sample row */
 
 .sample-row {
